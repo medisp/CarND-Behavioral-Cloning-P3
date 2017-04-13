@@ -14,13 +14,13 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/figure1.jpeg "Standard Data"
-[image2]: ./examples/figure2.jpeg "Terrain Change 1"
-[image3]: ./examples/figure3.jpeg "Terrain Change 2"
-[image4]: ./examples/figure4.jpeg "Terrain Change 3"
-[image5]: ./examples/figure5.jpeg "Recovery Steering 1"
-[image6]: ./examples/figure6.jpeg "Recovery Steering 2"
-[image7]: ./examples/figure7.jpeg "Recovery Steering 3"
+[image1]: ./examples/figure1.jpg "Standard Data"
+[image2]: ./examples/figure2.jpg "Terrain Change 1"
+[image3]: ./examples/figure3.jpg "Terrain Change 2"
+[image4]: ./examples/figure4.jpg "Terrain Change 3"
+[image5]: ./examples/figure5.jpg "Recovery Steering 1"
+[image6]: ./examples/figure6.jpg "Recovery Steering 2"
+[image7]: ./examples/figure7.jpg "Recovery Steering 3"
 [image8]: ./examples/figure8.png "Training MSE Curve"
 
 ## Rubric Points
