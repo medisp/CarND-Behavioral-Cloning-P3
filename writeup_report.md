@@ -51,8 +51,9 @@ The model.py file contains the code for training and saving the convolution neur
 ####1. An appropriate model architecture has been employed
 
 Convolutional Neural Networks have famously used in many deep learning solutions ranging from image recognition, traffic sign classification, and self driving car decision making. My model closely follows the architecture of NVidia and comma.ai.
-The final model was a completed during an iterative process of modifying the parameters of the Neural Network architecture and testing performance.
-First the image pixel values are normalized between -0.5 and 0.5. Then the Image is cropped to remove the top and bottom of the image, resizing it to 80x320x3. Following this is the first Convolution2D layer with 6x6 kernel window, stride 2x2, 'VALID' padding, depth of 24 and ReLu activation. After this is the second Convolution2D layer with 5x5 kernel window, stride 2x2, 'VALID' padding, depth of 36 and ReLu activation. The third Convolution2D layer has a 5x5 kernel window, stride 2x2, 'VALID' padding, depth of 48 and ReLu activation. The fourth Convolution2D layer has 3x3 kernel window, stride 2x2, 'VALID' padding, depth of 64 and ReLu activation. The fifth and last Convolution2D layer has 3x3 kernel window, stride 2x2, 'VALID' padding, depth of 64 and ReLu activation.This is outputted to a Flatten Layer, and then fed into a Dense Layer of size 200. A Dropout layer follows this with keep_prob=0.5. Another Dense layer of size 100 follows with a Dropout layer keep_prob=0.5.Another Dense layer of size 50 follows with a Dropout layer keep_prob=0.5. Finally Another Dense layer of size 50 follows with a Dropout layer keep_prob=0.5, and a final layer of 1 to predict the steering angle.
+The final model was a completed during an iterative process of modifying the parameters of the Neural Network architecture and testing performance. Please refer to model.py for code references.
+First the image pixel values are normalized between -0.5 and 0.5 (line 67). Then the Image is cropped to remove the top and bottom of the image, resizing it to 80x320x3 (line 68). Following this is the first Convolution2D layer with 6x6 kernel window, stride 2x2, 'VALID' padding, depth of 24 and ReLu activation (line 69). After this is the second Convolution2D layer with 5x5 kernel window, stride 2x2, 'VALID' padding, depth of 36 and ReLu activation (line 71). The third Convolution2D layer has a 5x5 kernel window, stride 2x2, 'VALID' padding, depth of 48 and ReLu activation (line 73). The fourth Convolution2D layer has 3x3 kernel window, stride 2x2, 'VALID' padding, depth of 64 and ReLu activation (line 75). The fifth and last Convolution2D layer has 3x3 kernel window, stride 2x2, 'VALID' padding, depth of 64 and ReLu activation (line 76). This is outputted to a Flatten Layer (line 77), and then fed into a Dense Layer of size 200 (line 79). A Dropout layer follows this with keep_prob=0.5 (line 80). Another Dense layer of size 100 (line 81) follows with a Dropout layer keep_prob=0.5 (line 82).Another Dense layer of size 100  (line 83)follows with a Dropout layer keep_prob=0.5 (line 84). Finally Another Dense layer of size 50 follows with a Dropout layer keep_prob=0.5, and a final layer of 1 to predict the steering angle.
+
 Please see the table below for an easier visualization:
 
 | Layer                 | Output Format    | Layer Settings    |
@@ -78,9 +79,6 @@ Please see the table below for an easier visualization:
 | Dropout_3             | Keep_Prob=0.5    |                   |
 | Dense_4_Final         | (None,1)         |                   |
 
-My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
-
-The model includes RELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18). 
 
 ####2. Attempts to reduce overfitting in the model
 
