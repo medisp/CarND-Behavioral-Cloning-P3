@@ -1,9 +1,5 @@
 #**Behavioral Cloning** 
 
-##Writeup Template
-
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
 ---
 
 **Behavioral Cloning Project**
@@ -53,6 +49,34 @@ The model.py file contains the code for training and saving the convolution neur
 ###Model Architecture and Training Strategy
 
 ####1. An appropriate model architecture has been employed
+
+Convolutional Neural Networks have famously used in many deep learning solutions ranging from image recognition, traffic sign classification, and self driving car decision making. My model closely follows the architecture of NVidia and comma.ai.
+The final model was a completed during an iterative process of modifying the parameters of the Neural Network architecture and testing performance.
+First the image pixel values are normalized between -0.5 and 0.5. Then the Image is cropped to remove the top and bottom of the image, resizing it to 80x320x3. Following this is the first Convolution2D layer with 6x6 kernel window, stride 2x2, 'VALID' padding, depth of 24 and ReLu activation. After this is the second Convolution2D layer with 5x5 kernel window, stride 2x2, 'VALID' padding, depth of 36 and ReLu activation. The third Convolution2D layer has a 5x5 kernel window, stride 2x2, 'VALID' padding, depth of 48 and ReLu activation. The fourth Convolution2D layer has 3x3 kernel window, stride 2x2, 'VALID' padding, depth of 64 and ReLu activation. The fifth and last Convolution2D layer has 3x3 kernel window, stride 2x2, 'VALID' padding, depth of 64 and ReLu activation.This is outputted to a Flatten Layer, and then fed into a Dense Layer of size 200. A Dropout layer follows this with keep_prob=0.5. Another Dense layer of size 100 follows with a Dropout layer keep_prob=0.5.Another Dense layer of size 50 follows with a Dropout layer keep_prob=0.5. Finally Another Dense layer of size 50 follows with a Dropout layer keep_prob=0.5, and a final layer of 1 to predict the steering angle.
+Please see the table below for an easier visualization:
+
+| Layer                 | Output Format    | Layer Settings    |
+|-----------------------|------------------|-------------------|
+| Lambda_Input          | (None,160,320,3) |                   |
+| Cropping (Cropping2D) | (None,80,320,3)  | (60,20) , (0,0)   |
+| Convolution2D_1       | (None,37,157,24) | (24,6,6) k=(2,2)  |
+| Relu_1                | (None,37,157,24) |                   |
+| Convolution2D_2       | (None,16,76,36)  | (36,5,5) k=(2,2)  |
+| Relu_2                | (None,16,76,36)  |                   |
+| Convolution2D_3       | (None,6,36,48)   | (48,5,5) k=(2,2)  |
+| Relu_3                | (None,6,36,48)   |                   |
+| Convolution2D_4       | (None,4,17,64)   | (64,3,3) k=(2,2)  |
+| Relu_4                | (None,4,17,64)   |                   |
+| Convolution2D_5       | (None,1,7,128)   | (128,3,3) k=(2,2) |
+| Relu_5                | (None,1,7,128)   |                   |
+| Flatten               | (None,896)       |                   |
+| Dense_1               | (None,200)       |                   |
+| Dropout_1             |                  | Keep_Prob=0.5     |
+| Dense_2               | (None,100)       |                   |
+| Dropout_1             |                  | Keep_Prob=0.5     |
+| Dense_3               | (None,50)        |                   |
+| Dropout_3             | Keep_Prob=0.5    |                   |
+| Dense_4_Final         | (None,1)         |                   |
 
 My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
 
