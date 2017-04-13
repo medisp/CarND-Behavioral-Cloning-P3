@@ -1,130 +1,107 @@
-# Load pickled data
-import pickle
-import numpy as np
-import tensorflow as tf
-tf.python.control_flow_ops = tf
+import os
 import csv
+
+samples = []
+with open('./data/driving_log.csv') as csvfile:
+    reader = csv.reader(csvfile)
+    for line in reader:
+        samples.append(line)
+samples = samples[1:]
+samples2=[]
+with open('./addtl_data/driving_log.csv') as csvfile:
+    reader = csv.reader(csvfile)
+    for line in reader:
+        samples2.append(line)	
+samples.extend(samples2)
+print(len(samples))
+from sklearn.model_selection import train_test_split
+train_samples, validation_samples = train_test_split(samples, test_size=0.2)
+#limit dataset for training
+#train_samples, validation_samples1 = train_test_split(samples2, test_size=0.3)
+#train_samples, validation_samples1 = train_test_split(samples, test_size=0.2)
+#train_samples, validation_samples = train_test_split(validation_samples1, test_size=0.2)
 import cv2
+import numpy as np
+import sklearn
+from random import randint
 
-# wget https://d17h27t6h515a5.cloudfront.net/topher/2016/December/584f6edd_data/data.zip
-# unzip data.zip
-'''
-with open('small_train_traffic.p', mode='rb') as f:
-    data = pickle.load(f)
+#def image_processing: cv2.cvtColor(cv2.imread(name),cv2.COLOR_BGR2RGB)
+from image_utils import *
 
-X_train, y_train = data['features'], data['labels']
-'''
-# Loading Data:
-lines = []
-with open('./data/driving_log.csv') as drivinglog:
-	reader = csv.reader(drivinglog)
-	for line in reader:
-		lines.append(line)
-			
+def generator(samples, batch_size=32):
+    num_samples = len(samples)
+    while 1: # Loop forever so the generator never terminates
+        sklearn.utils.shuffle(samples)
+        for offset in range(0, num_samples, batch_size):
+            batch_samples = samples[offset:offset+batch_size]
+            images = []
+            angles = []
+            for batch_sample in batch_samples:
+				#name = './addtl_data/IMG/'+batch_sample[0].split('/')[-1] #randint(0,2) to randomly sample left and right cameras	
+                name = './data/IMG/'+batch_sample[0].split('/')[-1] #randint(0,2) to randomly sample left and right cameras
+                center_image = cv2.cvtColor(cv2.imread(name),cv2.COLOR_BGR2RGB) #cv2.imread(name)#center_image = cv2.cvtColor(transform_image(cv2.imread(name)),cv2.COLOR_BGR2RGB) #cv2.imread(name)
+                center_angle = float(batch_sample[3])
+                images.append(center_image)
+                angles.append(center_angle)
 
-images = []
-measurements = []
-for line in lines[1:]:
-	source_path=line[0]
-	filename = source_path.split('/')[-1]
-	current_path = './data/IMG/' + filename
-	image = cv2.imread(current_path)
-	images.append(image)
-	
-	measurement = float(line[3])
-	measurements.append(measurement)
+            # trim image to only see section with road
+            X_train = np.array(images)
+            y_train = np.array(angles)
+            yield sklearn.utils.shuffle(X_train, y_train)
 
-augmented_images, augmented_measurements = [] , []
-for image, measurement in zip(images,measurements):
-	augmented_images.append(image)
-	augmented_measurements.append(measurement)
-	augmented_images.append(cv2.flip(image,1))
-	augmented_measurements.append(measurement*-1.0)
+# compile and train the model using the generator function
+train_generator = generator(train_samples, batch_size=32)
+validation_generator = generator(validation_samples, batch_size=32)
 
+ch, row, col = 3, 80, 320  # Trimmed image format
 
-X_train = np.array(augmented_images)
-y_train = np.array(augmented_measurements)
-	
-
-# Initial Setup for Keras
-	
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Cropping2D, Dropout
 from keras.layers import Convolution2D
 from keras.layers.pooling import MaxPooling2D
-#from keras.layers.core import Dense, Activation, Flatten, Dropout
-#from keras.layers.convolutional import Convolution2D
-#from keras.layers.pooling import MaxPooling2D
-
-# TODO: Build the Final Test Neural Network in Keras Here
-
 model = Sequential()
-# Normalization and mean centering using lambda layer
-model.add(Lambda(lambda x: (x / 255.0) - 0.5, input_shape = (160,320,3)))
-model.add(Cropping2D(cropping=((75,25),(0,0))))
-model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation='relu'))
+# Preprocess incoming data, centered around zero with small standard deviation 
+#model.add(Lambda(lambda x: x/127.5 - 1.,
+#        input_shape=(ch, row, col),
+ #       output_shape=(ch, row, col)))
+model.add(Lambda(lambda x: (x / 255.0) - 0.5, input_shape = (160,320,3)))		
+model.add(Cropping2D(cropping=((60,20),(0,0))))
+model.add(Convolution2D(24, 6, 6, subsample=(2,2), border_mode='valid', activation='relu')) # output (100-6-0)/2 47x157x24
 #model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation='relu'))
+model.add(Convolution2D(36, 5, 5, subsample=(2,2), border_mode='valid', activation='relu')) #output    47-5/2   21x76x36
 #model.add(MaxPooling2D())
-model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation='relu'))
+model.add(Convolution2D(48, 5, 5, subsample=(2,2), border_mode='valid', activation='relu'))   # output 21-5/2   8x36x48
 #model.add(Convolution2D(64, 3, 3, subsample=(2,2), activation='relu'))
-model.add(Convolution2D(64, 3, 3, subsample=(2,2), activation='relu'))
+model.add(Convolution2D(64, 3, 3, subsample=(2,2), border_mode='valid', activation='relu')) # output  9 x 17 x 64
+model.add(Convolution2D(128, 3, 3, subsample=(2,2), border_mode='valid', activation='relu')) # output  3x7x128
 model.add(Flatten())
+#model.add(Dropout(0.5))
+model.add(Dense(200))
 model.add(Dropout(0.5))
 model.add(Dense(100))
 model.add(Dropout(0.5))
 model.add(Dense(50))
+model.add(Dropout(0.5))
 model.add(Dense(1))
 
-
 model.compile(loss='mse', optimizer='adam')
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=5)
+from keras.models import Model
+import matplotlib.pyplot as plt
 
+history_object = model.fit_generator(train_generator, samples_per_epoch = len(train_samples), validation_data = validation_generator, nb_val_samples = len(validation_samples), nb_epoch=10, verbose=1)
 
-# Saving model
-model.save('model.h5')
+### print the keys contained in the history object
+print(history_object.history.keys())
+model.save('model10.h5')
+### plot the training and validation loss for each epoch
+plt.plot(history_object.history['loss'])
+plt.plot(history_object.history['val_loss'])
+plt.title('model mean squared error loss')
+plt.ylabel('mean squared error loss')
+plt.xlabel('epoch')
+plt.legend(['training set', 'validation set'], loc='upper right')
+plt.show()
+#model.fit_generator(train_generator, samples_per_epoch= len(train_samples), validation_data=validation_generator, nb_val_samples=len(validation_samples), nb_epoch=10)
 
-'''
-model.add(Convolution2D(32, 3, 3, input_shape=(32, 32, 3)))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.5))
-model.add(Activation('relu'))
-model.add(Flatten())
-model.add(Dense(128))
-model.add(Activation('relu'))
-model.add(Dense(5))
-model.add(Activation('softmax'))
-
-# preprocess data
-
-X_normalized = np.array(X_train / 255.0 - 0.5 )
-
-from sklearn.preprocessing import LabelBinarizer
-label_binarizer = LabelBinarizer()
-y_one_hot = label_binarizer.fit_transform(y_train)
-
-model.compile('adam', 'categorical_crossentropy', ['accuracy'])
-history = model.fit(X_normalized, y_one_hot, nb_epoch=10, validation_split=0.2)
-
-with open('small_test_traffic.p', 'rb') as f:
-    data_test = pickle.load(f)
-
-X_test = data_test['features']
-y_test = data_test['labels']
-
-# preprocess data
-X_normalized_test = np.array(X_test / 255.0 - 0.5 )
-y_one_hot_test = label_binarizer.fit_transform(y_test)
-
-print("Testing")
-
-# TODO: Evaluate the test data in Keras Here
-metrics = model.evaluate(X_normalized_test,y_one_hot_test)
-# TODO: UNCOMMENT CODE
-for metric_i in range(len(model.metrics_names)):
-    metric_name = model.metrics_names[metric_i]
-    metric_value = metrics[metric_i]
-    print('{}: {}'.format(metric_name, metric_value))  
-	
-#addtl
-'''
+			
+model.save('model10.h5')
