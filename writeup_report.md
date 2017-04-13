@@ -128,3 +128,11 @@ I used this training data for training the model. The validation set helped dete
 
 ![alt text][image8]
 
+
+#### 3. Conclusion and Final Thoughts 
+
+The model ran well around Track 1 and could use some other techniques to help the model infer and generalize on track 2. I will try image normalization to see the benefit on this track, as long as the accuracy on track 1 isn't lost.
+This was a nice project, using Convolutional Neural Networks, Model building and Testing fundamentals to teach a simulator to drive around a track. Please check out this video for performance, along with video.mp4 in the repo.
+https://youtu.be/BUwiPpCjlwM
+
+
