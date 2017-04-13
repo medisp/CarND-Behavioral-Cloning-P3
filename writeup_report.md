@@ -21,6 +21,7 @@ The goals / steps of this project are the following:
 [image5]: ./examples/placeholder_small.png "Recovery Image"
 [image6]: ./examples/placeholder_small.png "Normal Image"
 [image7]: ./examples/placeholder_small.png "Flipped Image"
+[image8]: ./examples/placeholder_small.png "Flipped Image2"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -82,9 +83,9 @@ Please see the table below for an easier visualization:
 
 #### 2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
+The model contains dropout layers in order to reduce overfitting (model.py lines 80,82,84). 
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 5,11,18). We have used segments of testing and validation sets. The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 #### 3. Model parameter tuning
 
@@ -124,28 +125,30 @@ Here is a visualization of the architecture (note: visualizing the architecture 
 
 #### 3. Creation of the Training Set & Training Process
 
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
+I had a baseline of good driving data from Udacity's hosted dataset. This includes nice center-lane driving without any drastic turns. I included driving data from going on the other side of the track:
 
 ![alt text][image2]
 
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
+This helped follow much of the road and helped benchmark the model and see what improvements can be achieved from a modeling perspective. 
+
+Following this, I recorded more data of specific problem areas that occur, such as when seeing different terrain and boundaries, dirt roads that might trick the model:
 
 ![alt text][image3]
 ![alt text][image4]
 ![alt text][image5]
 
-Then I repeated this process on track two in order to get more data points.
-
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+I also collected data when the car intentionally had to turn to straighten out and follow the path.
 
 ![alt text][image6]
 ![alt text][image7]
 
-Etc ....
-
-After the collection process, I had X number of data points. I then preprocessed this data by ...
 
 
-I finally randomly shuffled the data set and put Y% of the data into a validation set. 
+After the collection process, I had (8037 1597) = 9624 images/number of data points. I attempted to preprocess the images with image normalization, brightness normalization, histogram equalization, and affine transformations, but this actually caused my model to accidentally run off the rode, hence I discontinued use of this but included the code in this repo under image_utils.py.
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I finally randomly shuffled the data set and put 20% of the data into a validation set. I used generators for making sure the model runs quickly without running out of memory for having loaded nearly 10k images at a time.
+
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. I used an adam optimizer so that manually training the learning rate wasn't necessary. The ideal number of epochs was 8 as evidenced by the loss curves between training and validation:
+
+![alt text][image8]
+
